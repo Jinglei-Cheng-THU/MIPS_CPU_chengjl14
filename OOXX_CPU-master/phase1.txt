@@ -1,0 +1,46 @@
+OOXX CPU第一阶段设计
+
+目标：
+	五级流水线（IF RD ALU MEM WB），包括转发、提前分支（提前分支预测模块可以先不做，因为下述5级流水结构考虑了分支延迟槽后就不存在额外开销了）
+	MIPS32指令集，不包扩浮点运算
+	支持TLB，支持Icache/Dcache
+	支持异常、中断、系统调用
+
+设计：
+	五级流水线参考MIPS R3000设计
+	I/Dcache各4K～16K，1/2/4路组关联
+
+五级流水详情：
+	
+IF	IF1	TLB	TLB转换
+	IF2	Ic	Icache
+RD	RD1	Ic	Icache返回并进行校验
+	RD2	Reg	读寄存器
+EX	EX1	ALU	执行计算，存在分支则检查分支
+	EX2	TLB	结束计算，若存在load/store指令则TLB转换
+MM	MM1	Dc	Dcache
+	MM2	Dc	Dcache返回并进行校验
+WB	WB1	Reg	写寄存器
+
+注：
+	1. ALU需要在前半周期完成load/store指令的地址计算及分支条件判断，其他运算后半周期也可继续完成。
+	2. Icache每行4*2^l字节，总计2^m行，n路组关联，满足：l + m <= 10，Dcache不做限制。这么做的好处在于，访问Icache的前半周期可以直接使用未经过TLB转换的虚拟地址进行组间寻址，同时完成TLB，后半周期用于组内寻址及行内寻址，这一用法仅限于分支跳转指令。
+
+各类寄存器列表（+/-表示上升/下降沿改变其值）：
+
++PC	程序计数器
+-REG	通用寄存器（$0~$31，除去$0共31个）
+-IIDX	指令cache索引寄存器
++ITAG	指令cache标签寄存器
+-IVAL	指令cache输出寄存器
++IF/RD	流水寄存器
++RD/EX	流水寄存器
++EX/MM	流水寄存器
++MM/WB	流水寄存器
+
+1	1	2	2	3	3	4	4	5	5	6	6	7	7	8	8	9	9
+TLB	Ic	Ic	Reg	ALU	TLB	Dc	Dc	Reg
+		TLB	Ic	Ic	Reg	ALU	TLB	Dc	Dc	Reg
+				TLB	Ic	Ic	Reg	ALU	TLB	Dc	Dc	Reg
+						TLB	Ic	Ic	Reg	ALU	TLB	Dc	Dc	Reg
+								TLB	Ic	Ic	Reg	ALU	TLB	Dc	Dc	Reg
