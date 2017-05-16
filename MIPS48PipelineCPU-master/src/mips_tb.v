@@ -11,7 +11,7 @@ module testbench;
         $dumpfile("testbench.vcd");
         $dumpvars(0,testbench);
         // $readmemh("./code/xdb_1.txt",mips.IM.im_128k,32'H0C00,32'H0C0e);
-        $readmemh("./code/P6_function.txt",mips.IM.im_128k,32'H0C00,32'H0C8F);
+        $readmemh("P6_function.txt",mips.IM.im_128k,32'H0C00,32'H0C8F);
         Clk = 0;
         forever #10 Clk=!Clk;
     end
