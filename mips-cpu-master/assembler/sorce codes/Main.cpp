@@ -1,25 +1,4 @@
-/*微机原理大作业 之 《汇编器》
 
-	环境:	win7 enterprise,x64，VS2008	
-	作者：	宁强
-	日期：	2012.01
-
-*/
-/*-------------------------------------------------------------
-使用要求：
-
-  1 标号语句单独成行
-  2 一行只写一条语句
-  3 只支持“#”形式的注释，注释能出现在行尾也能单独成行
-  4 间隔符支持空格和制表符两种形式
-  5 不支持伪码
-  6 不支持十六进制表示立即数
-  7 不保证能够查出语句的语法错误
-  8 汇编流程：（1） mycode.txt经Analyze得ir_txt  //预编译阶段，去掉tab字符和注释
-              （2） ir_txt经Main.cpp的assembler得instruct.txt,由MIPS汇编文件得二进制代码文件
-              （3） instruct.txt与manual.txt经Check.cpp比较判断汇编结果是否正确，其中manual.txt为人工汇编结果文件,
-			        若需要运行此步，去掉Main.cpp中main函数对check()的注释即可,此时需提供manual.txt文件。
-----------------------------------------------------------------*/
 #include<iostream> 
 #include<fstream>
 #include<string> 
@@ -40,22 +19,22 @@ using namespace std;
 
 void assembler(string ir_set[],string label_value[],int label_locate[],int label_num){
 	ifstream fin("ir.txt");
-	ofstream fout("instruct.txt");//以out方式打开，清空文件内容
-	fout.close();//恢复文件指针
-	fout.open("instruct.txt",ios::app);//重新以app方式打开
-	//ofstream fout("instruct.txt");
+	ofstream fout("instruct.txt");
+	fout.close();
+	fout.open("instruct.txt",ios::app);
+	
 	string str = "";
-	int pc_count = 0;     //指令计数变量,增量为4
-	int ir_type;         //指令ir在指令集中的序号
-	char pc_trans[25];    //格式转换
+	int pc_count = 0;     
+	int ir_type;         
+	char pc_trans[25];
 	string upper ="";
 	string ir_name = "";
 	while(!fin.eof()){
 		getline(fin,str);
-		if( str == "") { continue; }  //仅对预汇编代码文件的最后一行起作用
-		if((0 <= str.rfind(':')) && (str.rfind(':') <= str.length())) { continue; }  //过滤点标号语句
-		upper = itoa(pc_count,pc_trans,16);   //将pc_count的值转换为十六进制数
-		transform(upper.begin(),upper.end(),upper.begin(),towupper);   //将upper的值转换为大写格式
+		if( str == "") { continue; }  
+		if((0 <= str.rfind(':')) && (str.rfind(':') <= str.length())) { continue; }  
+		upper = itoa(pc_count,pc_trans,16);   
+		transform(upper.begin(),upper.end(),upper.begin(),towupper);   
 		ir_name = Get_ir_name(str);
 		transform(ir_name.begin(),ir_name.end(),ir_name.begin(),towupper);
 		ir_type = Get_ir_serial(ir_name,ir_set,IR_QUANTITY);
@@ -192,7 +171,46 @@ int main(){
 
 	assembler(ir_set,label_value,label_locate,label_num);
 
-
+	string str = "";
+	int bin_temp = 0;
+	ifstream bin_hex("instruct.txt");
+	ofstream fout("final_hex.txt");
+	fout.close();
+	fout.open("final_hex.txt", ios::app);
+	cout << endl;
+	while (!bin_hex.eof()){
+		getline(bin_hex, str);
+		if (str == "") { continue; }
+		cout << str << endl;
+		for (int i = 0; i < 32; i++){
+			bin_temp = bin_temp*10 + str[i] - 48;
+			if (i % 4 == 3){
+				switch (bin_temp){
+				case 0:{fout << "0"; break; }
+				case 1:{fout << "1"; break; }
+				case 10:{fout << "2"; break; }
+				case 11:{fout << "3"; break; }
+				case 100:{fout << "4"; break; }
+				case 101:{fout << "5"; break; }
+				case 110:{fout << "6"; break; }
+				case 111:{fout << "7"; break; }
+				case 1000:{fout << "8"; break; }
+				case 1001:{fout << "9"; break; }
+				case 1010:{fout << "a"; break; }
+				case 1011:{fout << "b"; break; }
+				case 1100:{fout << "c"; break; }
+				case 1101:{fout << "d"; break; }
+				case 1110:{fout << "e"; break; }
+				case 1111:{fout << "f"; break; }
+				default:{cout << "Error: bin_temp is wrong!" << endl; break; }
+				}
+				bin_temp = 0;
+			}
+		}
+		fout << endl;
+	}
+	fout.close();
+	bin_hex.close(); 
 
 #else
 
