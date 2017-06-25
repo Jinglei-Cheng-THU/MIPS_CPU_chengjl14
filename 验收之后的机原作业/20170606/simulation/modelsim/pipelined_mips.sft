@@ -1,0 +1,5 @@
+set tool_name "ModelSim-Altera (VHDL)"
+set corner_file_list {
+	{{"Slow Model"} {pipelined_mips.vho pipelined_mips_vhd.sdo}}
+	{{"Fast Model"} {pipelined_mips_fast.vho pipelined_mips_vhd_fast.sdo}}
+}

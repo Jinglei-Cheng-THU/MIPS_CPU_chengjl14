@@ -1,0 +1,240 @@
+main:
+	addi $a0,$zero,0    #set base address
+	lw   $s0,00($a0)
+	lw   $s1,04($a0)
+	lw   $s2,08($a0)
+	lw   $s3,12($a0)  #load cipher key 
+
+	lw   $s4,16($a0)  #load cipher initial state
+	lw   $s5,20($a0)
+	lw   $s6,24($a0)
+	lw   $s7,28($a0)
+	addi $a1,$zero,0     #set $a1 as round count
+	lui  $a2,36096    #set $a2 as KeyExpansion Rcon
+	addi $a3,$zero,10    #set $a3 as 10
+
+	xor  $t8,$t4,$t5
+	xor  $t8,$t8,$t1
+	xor  $t8,$t8,$t2
+	xor  $t8,$t8,$t3
+	addi  $t9,$t8,0
+
+	addi $sp,$zero,8
+	sll  $sp,$sp,28
+	addi $gp,$zero,27
+	sll  $gp,$gp,24
+
+AddRoundKey:          #addround operation
+	xor $s4,$s4,$s0 	
+	xor $s5,$s5,$s1
+	xor $s6,$s6,$s2
+	xor $s7,$s7,$s3
+	beq $a1,$a3,Finish # when round count is 10,the whole process is finished
+	addi $a1,$a1,1     # when round count isnot 10,cotinue next instruction and begin next turn
+
+SubBytes:
+# col 1
+	addi $t9,$s4,0
+	jal  SubWords    #finish operation with sbox
+	addi  $s4,$t9,0
+# col 2
+	addi $t9,$s5,0
+	jal  SubWords
+	addi  $s5,$t9,0
+# col 3
+	addi $t9,$s6,0
+	jal  SubWords
+	addi  $s6,$t9,0
+# col 4
+	addi $t9,$s7,0
+	jal  SubWords
+	addi  $s7,$t9,0
+	j ShiftRows
+
+SubWords:	
+	srl  $t0,$t9,22
+	andi $t0,$t0,1020	 # get first byte
+	srl  $t1,$t9,14
+	andi $t1,$t1,1020
+	srl  $t2,$t9,6
+	andi $t2,$t2,1020
+	sll  $t3,$t9,2
+	andi $t3,$t3,1020
+
+	add  $t0,$t0,$a0    #get addr in sbox
+	add  $t1,$t1,$a0
+	add  $t2,$t2,$a0
+	add  $t3,$t3,$a0
+	lw   $t0,512($t0)	# put data into $t0
+	lw   $t1,512($t1)
+	lw   $t2,512($t2)
+	lw   $t3,512($t3)
+
+	sll  $t0,$t0,24
+	sll  $t1,$t1,16
+	sll  $t2,$t2,8
+	add  $t9,$t0,$t1
+	add  $t9,$t9,$t2
+	add  $t9,$t9,$t3
+	jr $ra             #get back and operate for the next vector
+#################### ShiftRows ######################
+ShiftRows:
+# row 1
+	addi $v0,$zero,255
+	sll  $v0,$v0,16	
+	addi $v1,$v0,256
+	sll  $v1,$v1,8
+	addi $v1,$v1,65535
+	and  $t1,$s4,$v0
+	and  $s4,$s4,$v1
+	and  $t2,$s5,$v0
+	and  $s5,$s5,$v1
+	and  $t3,$s6,$v0
+	and  $s6,$s6,$v1
+	and  $t4,$s7,$v0
+	and  $s7,$s7,$v1
+	xor  $s4,$s4,$t2
+	xor  $s5,$s5,$t3
+	xor  $s6,$s6,$t4
+	xor  $s7,$s7,$t1
+# row 2
+	addi $v0,$zero,255
+	sll  $v0,$v0,8
+	addi $v1,$v0,255
+	sll  $v1,$v1,16
+	addi $v1,$v1,255
+	and  $t1,$s4,$v0
+	and  $s4,$s4,$v1
+	and  $t2,$s5,$v0
+	and  $s5,$s5,$v1
+	and  $t3,$s6,$v0
+	and  $s6,$s6,$v1
+	and  $t4,$s7,$v0
+	and  $s7,$s7,$v1
+	xor  $s4,$s4,$t3
+	xor  $s5,$s5,$t4
+	xor  $s6,$s6,$t1
+	xor  $s7,$s7,$t2
+# row 3
+	addi $v0,$zero,255
+	addi $v1,$zero,65535
+	sub  $v1,$v1,$v0
+	and  $t1,$s4,$v0
+	and  $s4,$s4,$v1
+	and  $t2,$s5,$v0
+	and  $s5,$s5,$v1
+	and  $t3,$s6,$v0
+	and  $s6,$s6,$v1
+	and  $t4,$s7,$v0
+	and  $s7,$s7,$v1
+	xor  $s4,$s4,$t4
+	xor  $s5,$s5,$t1
+	xor  $s6,$s6,$t2
+	xor  $s7,$s7,$t3
+	beq  $a1,$a3,KeyExpansion   #judge wheather it is the tenth operation or not
+#################### MixColomns #####################
+MixColumns:                     # the method of operation is similar to subwords
+# col 1
+	addi $t9,$s4,0
+	jal  MixOperation
+	addi  $s4,$t9,0
+# col 2
+	addi $t9,$s5,0
+	jal  MixOperation
+	addi  $s5,$t9,0
+# col 3
+	addi $t9,$s6,0
+	jal  MixOperation
+	addi  $s6,$t9,0
+# col 4
+	addi $t9,$s7,0
+	jal  MixOperation
+	addi  $s7,$t9,0
+	j KeyExpansion              #operation is finished then turn into keyexpansion
+MixOperation:
+# get bytes
+	addi $v0,$zero,255
+	sll  $v1,$v0,16
+	sll  $v0,$v1,8
+	and  $t0,$t9,$v0
+	and  $t1,$t9,$v1
+	addi $v0,$zero,255
+	sll  $v1,$v0,8
+	and  $t2,$t9,$v1
+	andi $t3,$t9,255
+	sll  $t1,$t1,8
+	sll  $t2,$t2,16
+	sll  $t3,$t3,24
+S0c02:
+	sll  $t4,$t0,1                #get b6:b0
+	and  $t8,$t0,$sp       #get b7
+	beq  $t8,$zero ,S1c02
+	xor  $t4,$t4,$gp
+S1c02:
+	sll  $t5,$t1,1
+	and  $t8,$t1,$sp
+	beq  $t8,$zero ,S2c02
+	xor  $t5,$t5,$gp
+S2c02:
+	sll  $t6,$t2,1
+	and  $t8,$t2,$sp
+	beq  $t8,$zero ,S3c02
+	xor  $t6,$t6,$gp	
+S3c02:
+	sll  $t7,$t3,1
+	and  $t8,$t3,$sp
+	beq  $t8,$zero ,MixCal
+	xor  $t7,$t7,$gp
+MixCal:
+# byte 0
+	xor  $t8,$t4,$t5
+	xor  $t8,$t8,$t1
+	xor  $t8,$t8,$t2
+	xor  $t8,$t8,$t3
+	addi  $t9,$t8,0
+# byte 1
+	xor  $t8,$t5,$t6
+	xor  $t8,$t8,$t2
+	xor  $t8,$t8,$t3
+	xor  $t8,$t8,$t0
+	srl  $t8,$t8,8
+	add  $t9,$t9,$t8  
+# byte 2
+	xor  $t8,$t6,$t7
+	xor  $t8,$t8,$t3
+	xor  $t8,$t8,$t0
+	xor  $t8,$t8,$t1
+	srl  $t8,$t8,16
+	add  $t9,$t9,$t8
+# byte 3
+	xor  $t8,$t7,$t4
+	xor  $t8,$t8,$t0
+	xor  $t8,$t8,$t1
+	xor  $t8,$t8,$t2
+	srl  $t8,$t8,24
+	add  $t9,$t9,$t8
+	jr $ra                        #operation is finished and go back
+#################### KeyExpansion ####################
+KeyExpansion:                     #provide key for every turn
+# Rotword
+	srl  $t5,$s3,24
+	sll  $t6,$s3,8
+	add  $t5,$t6,$t5
+# SubByte
+	addi $t9,$t5,0
+	jal  SubWords
+	addi  $t5,$t9,0
+# RC02
+	and  $t6,$a2,$sp
+	sll  $a2,$a2,1
+	beq  $t6,$zero,KeyExpCal
+	xor  $a2,$a2,$gp
+KeyExpCal:
+	xor  $s0,$s0,$t5
+	xor  $s0,$s0,$a2
+	xor  $s1,$s1,$s0
+	xor  $s2,$s2,$s1
+	xor  $s3,$s3,$s2
+	j AddRoundKey
+Finish:
+	j Finish

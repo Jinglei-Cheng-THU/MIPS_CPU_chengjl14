@@ -1,0 +1,99 @@
+Information: Updating graph... (UID-83)
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : mul_64
+Version: D-2010.03
+Date   : Sun Jun 25 12:12:51 2017
+****************************************
+
+Operating Conditions: ss_1v62_125c   Library: ss_1v62_125c
+Wire Load Model Mode: top
+
+  Startpoint: in1[0] (input port)
+  Endpoint: out[124] (output port)
+  Path Group: default
+  Path Type: max
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  input external delay                                    0.00       0.00 f
+  in1[0] (in)                                             0.00       0.00 f
+  U1113/Y (INVX8)                                         0.03       0.03 r
+  U1115/Y (NAND2X4)                                       0.07       0.10 f
+  U1026/Y (INVX8)                                         0.08       0.19 r
+  U1027/Y (NAND2X2)                                       0.08       0.26 f
+  U1034/Y (INVX4)                                         0.09       0.35 r
+  U1035/Y (AND2X4)                                        0.19       0.55 r
+  U1037/Y (XOR2X4)                                        0.22       0.76 f
+  U266/Y (BUFX12)                                         0.16       0.92 f
+  U275/Y (OAI21X4)                                        0.12       1.04 r
+  U1068/S (ADDFHX4)                                       0.47       1.51 f
+  U725/CO (ADDFHX2)                                       0.30       1.81 f
+  U594/S (ADDFHX2)                                        0.32       2.13 r
+  DP_OP_674J1_296_9245/U2446/S (ADDFHX2)                  0.42       2.54 r
+  DP_OP_674J1_296_9245/U2439/S (ADDFHX2)                  0.32       2.86 r
+  U370/CO (ADDFHX4)                                       0.43       3.29 r
+  U11232/CO (ADDFHX4)                                     0.42       3.71 r
+  U11779/CO (ADDFHX4)                                     0.45       4.16 r
+  U11723/S (ADDFHX4)                                      0.36       4.52 f
+  U277/Y (NOR2X4)                                         0.13       4.65 r
+  U278/Y (OAI21X4)                                        0.08       4.73 f
+  U281/Y (AOI21X2)                                        0.13       4.86 r
+  U1098/Y (OAI21X2)                                       0.13       4.99 f
+  U1099/Y (AOI21X4)                                       0.14       5.13 r
+  U1139/Y (OAI21X4)                                       0.11       5.24 f
+  U1101/Y (INVX4)                                         0.09       5.33 r
+  U1102/Y (INVX4)                                         0.09       5.42 f
+  U1109/Y (AOI21X1)                                       0.16       5.58 r
+  U1112/Y (XOR2X1)                                        0.25       5.83 r
+  out[124] (out)                                          0.00       5.83 r
+  data arrival time                                                  5.83
+
+  max_delay                                               1.00       1.00
+  output external delay                                   0.00       1.00
+  data required time                                                 1.00
+  --------------------------------------------------------------------------
+  data required time                                                 1.00
+  data arrival time                                                 -5.83
+  --------------------------------------------------------------------------
+  slack (VIOLATED)                                                  -4.83
+
+
+1
+ 
+****************************************
+Report : timing
+        -path full
+        -delay min
+        -max_paths 1
+Design : mul_64
+Version: D-2010.03
+Date   : Sun Jun 25 12:12:51 2017
+****************************************
+
+Operating Conditions: ss_1v62_125c   Library: ss_1v62_125c
+Wire Load Model Mode: top
+
+  Startpoint: in1[0] (input port)
+  Endpoint: out[0] (output port)
+  Path Group: (none)
+  Path Type: min
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  input external delay                     0.00       0.00 f
+  in1[0] (in)                              0.00       0.00 f
+  U4280/Y (INVX8)                          0.04       0.04 r
+  U12066/Y (NOR2X1)                        0.04       0.09 f
+  out[0] (out)                             0.00       0.09 f
+  data arrival time                                   0.09
+  -----------------------------------------------------------
+  (Path is unconstrained)
+
+
+1

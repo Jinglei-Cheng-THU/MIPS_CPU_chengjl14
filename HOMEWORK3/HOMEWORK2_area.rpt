@@ -1,0 +1,24 @@
+ 
+****************************************
+Report : area
+Design : HOMEWORK2
+Version: D-2010.03
+Date   : Thu Jun 22 21:30:24 2017
+****************************************
+
+Library(s) Used:
+
+    ss_1v62_125c (File: /software/course_lib_umc18/synopsys/ss_1v62_125c.db)
+
+Number of ports:               64
+Number of nets:               153
+Number of cells:              120
+Number of references:          42
+
+Combinational area:       2065.694428
+Noncombinational area:       0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:          2065.694428
+Total area:                 undefined
+1
